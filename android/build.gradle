@@ -92,6 +92,7 @@ ARCHS.each { arch ->
     }
 }
 
+//mergeDebugJniLibFolders 플러터 안드로이드 빌드태스크 돌때, 이놈아가 extractlibs 보다 무조건 뒤에 돌게끔 명시
 tasks.whenTaskAdded { task ->
     if (task.name == 'mergeDebugJniLibFolders') {
         task.dependsOn extractTasks
