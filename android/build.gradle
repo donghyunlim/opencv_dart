@@ -71,6 +71,7 @@ def SOURCE_DIR = project.buildscript.sourceFile.parentFile
 def CVD_VERSION = new File("${project.buildscript.sourceFile.parentFile.parentFile}/binary.version").text
 def CVD_LIB_URL_BASE = "https://github.com/rainyl/opencv_dart/releases/download"
 def ARCHS = ['x86_64', 'arm64-v8a', 'armeabi-v7a']
+def extractTasks = []
 
 task downloadLibs(type: Download) {
     println "Downloading opencv_dart libraries..."
@@ -84,9 +85,17 @@ task downloadLibs(type: Download) {
 
 ARCHS.each { arch ->
     def extractTaskName = "opencv_dart_extract_libs_${arch}"
+    extractTasks << extractTaskName
     task(extractTaskName, type: Copy) {
         from tarTree(resources.gzip("${SOURCE_DIR}/libopencv_dart-android-${arch}.tar.gz"))
         into "${SOURCE_DIR}/src/main/jniLibs/${arch}"
+    }
+}
+
+//mergeDebugJniLibFolders 플러터 안드로이드 빌드태스크 돌때, 이놈아가 extractlibs 보다 무조건 뒤에 돌게끔 명시
+tasks.whenTaskAdded { task ->
+    if (task.name == 'mergeDebugJniLibFolders' || task.name == 'mergeReleaseJniLibFolders') {
+        task.dependsOn extractTasks
     }
 }
 
